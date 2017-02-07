@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>projet1</title>
+
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- build:css styles/vendor.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+
+    <title>My first three.js app</title>
+    <style>
+      body { margin: 0; overflow: hidden;}
+      canvas { width: 100%; height: 100% }
+      #spectrumCanvas{position: absolute;bottom: 0;left: 0;height: 100px;}
+    </style>
+
+  </head>
+  <body>
+    <!--[if IE]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <canvas width="800" height="60" id="spectrumCanvas"></canvas>
+  <div id="info-audio" style="display: none;"><p>PLEASE WAIT. <br>LOADING SOUND TRACK. </p></div>
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+      (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+      function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='https://www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+      ga('create','UA-XXXXX-X');ga('send','pageview');
+    </script>
+
+    <!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="/bower_components/gsap/src/uncompressed/TweenMax.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!-- build:js scripts/main.js -->
+    <script src="bower_components/three/build/three.js"></script>
+    <script src="bower_components/gsap/src/minified/TweenMax.min.js"></script>
+    <script src="/scripts/audio-handler.js"></script>
+    <script src="/scripts/OrbitControls.js"></script>
+    <script src="/scripts/Ring.js"></script>
+    <!-- <script src=”bower_components/gsap/src/minified/TimelineMax.min.js”></script> -->
+    <script src="scripts/main.js"></script>
+
+    <!-- endbuild -->
+  </body>
+</html>
