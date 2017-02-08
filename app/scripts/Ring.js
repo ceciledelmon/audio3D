@@ -1,23 +1,47 @@
 class Ring {
   constructor(opts) {
+
+    this.up = opts.up;
+
     var geometry = new THREE.TorusGeometry( 120, 4, 4, 4 );
     var material = new THREE.MeshBasicMaterial( { color: 0xCCE8AB } );
     this.ringShape = new THREE.Mesh( geometry, material );
-    //var vector = new THREE.Vector3( 0, 0, 1 );
-    //vector.applyQuaternion( this.ringShape.quaternion );
 
-    this.ringShape.rotateX(Math.PI/2);
-    this.ringShape.position.set(0, 25, 0);
+
+    this.ringShape.rotation.x = Math.PI/2;
+
+    if (this.up) {
+      this.ringShape.rotation.z = -opts.rotation;
+      var base = 25;
+    }else {
+      this.ringShape.rotation.z = opts.rotation;
+      var base = -25;
+    }
+    this.ringShape.position.set(0, base, 0);
+
 
   }
-  update(){
-    //this.ringShape.rotation.z -= 0.005;
-  	this.ringShape.position.y += 0.5;
+  update(opts){
+    if (this.up) {
+      this.ringShape.rotation.z = -opts.rotation;
+      this.ringShape.position.y += 0.5;
+    }else {
+      this.ringShape.rotation.z = opts.rotation;
+      this.ringShape.position.y -= 0.5;
+    }
     this.ringShape.scale.set(this.ringShape.scale.x - 0.0033,this.ringShape.scale.y - 0.0033,this.ringShape.scale.z - 0.0033);
   }
-  reinit(){
+  reinit(opts){
+    this.up = opts.up;
     this.ringShape.scale.set(1,1,1);
-    this.ringShape.position.set(0, 25, 0);
+    if (this.up) {
+      this.ringShape.rotation.z = -opts.rotation;
+      var base = 25;
+    }else {
+      this.ringShape.rotation.z = opts.rotation;
+      var base = -25;
+    }
+    this.ringShape.position.set(0, base, 0);
   }
   getRandomColor() {
   //var letters = '0123456789ABCDEF';
