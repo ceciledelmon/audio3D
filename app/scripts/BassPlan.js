@@ -18,8 +18,14 @@ class BassPlan {
     };
 
     var geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-    var material = new THREE.MeshPhongMaterial( { color: 0xd34575 } );
+    var material = new THREE.MeshPhongMaterial( { color: 0xC7F5FF } );
     var bass = new THREE.Mesh( geometry, material ) ;
+
+    var geometry = new THREE.EdgesGeometry( bass.geometry ); // or WireframeGeometry
+    var material = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 5 } );
+    var edges = new THREE.LineSegments( geometry, material );
+    bass.add( edges ); // add wireframe as a child of the parent mesh
+
     if (this.sens) {
       bass.rotation.y = Math.PI/4;
     }else {

@@ -1,45 +1,56 @@
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1500 );
 
-camera.position.z = 800;
+camera.position.z = 700;
 camera.lookAt(scene.position);
+
+camera.position.y += 200;
+
+var click = false;
+document.body.addEventListener('click', function(){
+  click = true;
+})
 
 var clock = new THREE.Clock();
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
-//renderer.setClearColor( 0xffffff, 1 );
+renderer.setClearColor( 0x1c1c1c, 1 );
 document.body.appendChild( renderer.domElement );
 
 // Controls
 var controls = new THREE.OrbitControls(camera, renderer.domElement);
-// controls.addEventListener( 'change', render ); // remove when using animation loop
-// enable animation loop when using damping or autorotation
-//controls.enableDamping = true;
-//controls.dampingFactor = 0.25;
 controls.enableZoom = true;
 
 // White directional light at half intensity shining from the top.
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8);
 scene.add( directionalLight );
-directionalLight.position.set(300,0,300);
+directionalLight.position.set(600,0,200);
 
-var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+var light = new THREE.HemisphereLight( 0xffffbb, 0xffffff, 0.5 );
 scene.add( light );
-
 
 //pyramides
 
 var geometry = new THREE.ConeBufferGeometry( 120, 150, 4 );
-var material = new THREE.MeshPhongMaterial( {color: 0x6D7DFD, shading:THREE.FlatShading} );
+var material = new THREE.MeshPhongMaterial( {color: 0xD89FFF, shading:THREE.FlatShading} );
 var cylinder = new THREE.Mesh( geometry, material );
 var cylinder2 = new THREE.Mesh( geometry, material );
+addEdges(cylinder);
+addEdges(cylinder2);
 scene.add( cylinder );
 cylinder.position.set(0, -100, 0);
 cylinder2.position.set(0, 100, 0);
 cylinder2.rotation.y = Math.PI/4;
 cylinder.rotateX(Math.PI);
 scene.add( cylinder2 );
+
+function addEdges(mesh) {
+  var geometry = new THREE.EdgesGeometry( mesh.geometry ); // or WireframeGeometry
+  var material = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 3 } );
+  var edges = new THREE.LineSegments( geometry, material );
+  mesh.add( edges ); // add wireframe as a child of the parent mesh
+}
 
 var planes = [];
 //1 ere face pyramide
@@ -110,6 +121,59 @@ planes.push(plane4);
 
 
 
+// now create the individual particles
+var particles = [new THREE.TorusGeometry( 200, 10, 0.2, 200, Math.PI * 2),
+                new THREE.TorusGeometry( 300, 10, 0.2, 200, Math.PI * 2),
+                new THREE.TorusGeometry( 400, 10, 0.2, 200, Math.PI * 2),
+                new THREE.TorusGeometry( 500, 10, 0.2, 200, Math.PI * 2),
+                new THREE.TorusGeometry( 600, 10, 0.2, 200, Math.PI * 2),
+                new THREE.TorusGeometry( 700, 10, 0.2, 200, Math.PI * 2),
+                new THREE.TorusGeometry( 800, 10, 0.2, 200, Math.PI * 2),
+                ];
+var particleSystems = [];
+
+var initialRotation = 0;
+
+for (var i = 0; i < particles.length; i++) {
+  createParticles(particles[i], i%2 === 0 ? true : false);
+}
+for (var i = 0; i < particleSystems.length; i++) {
+  scene.add(particleSystems[i]);
+}
+
+function createParticles(particlesGeo, inverse) {
+  // create the particle variables
+  var color = inverse? 0xF6FCAE : 0xFFABE5;
+  var pMaterial = new THREE.PointsMaterial({
+        color: color,
+        size: Math.random()*1+1,
+        blending: THREE.AdditiveBlending,
+        transparent: true
+      });
+
+  var vertices = particlesGeo.vertices;
+  for( var v = 0; v < vertices.length; v++ ) {
+  		vertices[v].x += (Math.random()*5);
+  		vertices[v].x -= (Math.random()*5);
+  		vertices[v].y += (Math.random()*200);
+  		vertices[v].y -= (Math.random()*200);
+  		vertices[v].z += (Math.random()*200);
+  		vertices[v].z -= (Math.random()*200);
+  }
+  // create the particle system
+  var particleSystem = new THREE.Points(
+      particlesGeo,
+      pMaterial);
+  if (inverse) {
+    particleSystem.inverse = true;
+  }
+  particleSystem.rotation.set(initialRotation, initialRotation, initialRotation);
+  initialRotation += Math.PI/4;
+  particleSystems.push(particleSystem);
+}
+
+
+
 var geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
 var edges = new THREE.EdgesGeometry( geometry );
 var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
@@ -138,7 +202,7 @@ addSpectrumVisualiser();
 
 AudioManager.start({
     microphone: false,
-    track: '/sounds/nu'
+    track: '/three-project/sounds/nu'
 });
 
 var previous = 100;
@@ -189,7 +253,6 @@ function render() {
 	}
 
   updateFrequencyData();
-  drawSpectrum(10);
 
   freq1 = getFreqRange(10, 20)*resonanceFreq1;
   freq2 = getFreqRange(20, 30)*resonanceFreq2;
@@ -199,23 +262,21 @@ function render() {
   freq5 = getFreqRange(140, 155)*resonanceFreq5;
   freq6 = getFreqRange(155, 190)*resonanceFreq6;
   freq7 = getFreqRange(191, 250)*resonanceFreq6;
-  var limit = 100
+  var limit = 150
 	if (freq1 > limit && usedRings.length < limit) {
 		launchRing(true);
-		// console.log("UP >>"+usedRings.length+"   //   "+pausedRings.length);
 	}
-  if (freq2 > limit-20 && usedRings.length < limit) {
+  if (freq2 > limit-60 && usedRings.length < limit) {
     launchRing(false);
-    //console.log("DOWN >>"+usedRings.length+"   //   "+pausedRings.length);
   }
   // console.log("DOWN >>"+usedRings.length+"   //   "+pausedRings.length);
   // console.log("1 >>" + freq1);
   //console.log("2 >>" + freq2);
   // console.log("3 >>" + freq3);
   // console.log("4 >>" + freq4);
-  // console.log("5 >>" + freq5);
-  // console.log("6 >>" + freq6);
-  // console.log("7 >>" + freq7);
+   //console.log("5 >>" + freq5 + "     " + Math.log(freq5+1));
+   //console.log("6 >>" + freq6);
+   //console.log("7 >>" + freq7);
 
 
   //console.log(">> "+cylinder.rotation.y+"    >>"+cylinder2.rotation.y+" >>");
@@ -254,10 +315,28 @@ function render() {
   updateRotation(cylinder);
   updateRotation(cylinder2)
 
+
+  for (var i = 0; i < particleSystems.length; i++) {
+    if (particleSystems[i].inverse) {
+      particleSystems[i].rotation.x += 0.001+0.0004*Math.log(freq5+1);
+      particleSystems[i].rotation.z += 0.001+0.0004*Math.log(freq5+1);
+      particleSystems[i].rotation.y += 0.001+0.0004*Math.log(freq5+1);
+    }else {
+      particleSystems[i].rotation.z -= 0.001+0.0004*Math.log(freq5+1);
+      particleSystems[i].rotation.x -= 0.001+0.0004*Math.log(freq5+1);
+      particleSystems[i].rotation.y -= 0.001+0.0004*Math.log(freq5+1);
+    }
+  }
+
   //camera mouvement
-  // camera.position.y += Math.cos(now*0.001) * 3;
-  // camera.position.z += (freq3 - previous) * 2;
-  // previous = freq3;
+  if (click == false) {
+    camera.position.x += Math.cos(clock.getElapsedTime())*2;
+    camera.position.y += Math.cos(clock.getElapsedTime())/2;
+    camera.position.z += Math.cos(clock.getElapsedTime())/2;
+  }
+  //camera.position.z += (freq3 - previous) * 2;
+  //camera.position.y += (freq3 - previous) * 2;
+  previous = freq3;
   //position.add( velocity * deltaTime/expectedFPS )
 
 	renderer.render( scene, camera );
@@ -271,34 +350,4 @@ function updateRotation(shape) {
   }
 }
 
-//debug();
 render();
-setInterval(function(){
-    //console.log(usedRings.length,pausedRings.length);
-},500)
-function debug() {
-  var min = 0.01
-  var max = 600
-
-  var axis = {
-    x: new THREE.Mesh(new THREE.BoxGeometry(max,min,min), new THREE.LineBasicMaterial({color: '#ff0000', linewidth: 14})),
-    y: new THREE.Mesh(new THREE.BoxGeometry(min,max,min), new THREE.LineBasicMaterial({color: '#00ff00', linewidth: 14})),
-    z: new THREE.Mesh(new THREE.BoxGeometry(min,min,max), new THREE.LineBasicMaterial({color: '#0000ff', linewidth: 14})),
-  }
-
-  axis.x.position.x = max / 2
-  axis.x.position.y = min / 2
-  axis.x.position.z = min / 2
-
-  axis.y.position.x = min / 2
-  axis.y.position.y = max / 2
-  axis.y.position.z = min / 2
-
-  axis.z.position.x = min / 2
-  axis.z.position.y = min / 2
-  axis.z.position.z = max / 2
-
-  scene.add(axis.x)
-  scene.add(axis.y)
-  scene.add(axis.z)
-}

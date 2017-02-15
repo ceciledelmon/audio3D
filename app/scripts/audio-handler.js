@@ -68,10 +68,6 @@ var AudioManager = function() {
             var audioLoaded = document.getElementById('info-audio');
             audioLoaded.style.display = 'none';
 
-
-
-
-
         };
         oReq.send(null);
 
@@ -156,7 +152,7 @@ function drawSpectrum( step ) {
         spectrumCtx.fillStyle = 'rgb(50,' + j + ',' + j + ')';
         spectrumCtx.beginPath();
         spectrumCtx.fillRect( j, spectrumCanvas.height, step, - v * spectrumCanvas.height / 256 );
-        spectrumCtx.font = "normal 10px Arial";
+        spectrumCtx.font = 'normal 10px Arial';
         spectrumCtx.save();
         spectrumCtx.rotate( Math.PI / 2 );
         spectrumCtx.beginPath();
